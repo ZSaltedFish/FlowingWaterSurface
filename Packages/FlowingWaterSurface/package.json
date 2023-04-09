@@ -1,0 +1,27 @@
+{
+  "name": "com.zknight.flowingwatersurface",
+  "version": "1.0.0",
+  "description": "Flowing water surface with cartoon",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ZSaltedFish/flowingWaterSurface.git"
+  },
+  "keywords": [
+    "shader",
+    "cartoon"
+  ],
+  "author": "zknight",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ZSaltedFish/flowingWaterSurface/issues"
+  },
+  "homepage": "https://github.com/ZSaltedFish/flowingWaterSurface#readme",
+  "displayName": "Flowing Water Surface",
+  "dependencies": {
+    "com.unity.render-pipelines.universal": "1.0.0"
+  },
+  "unity": "2019.2"
+}
