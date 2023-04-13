@@ -1,109 +1,122 @@
-using System.Collections.Generic;
+using System;
 using UnityEditor;
 using UnityEngine;
 
 namespace com.ZKnight.FlowingWaterSurface.Editor
 {
+
     public class FlowingWaterWindow : EditorWindow
     {
         public Vector3 Size = Vector3.one * 0.1f;
-        private GameObject _root;
-        public GameObject RootObject
-        {
-            get
-            {
-                if (_root == null)
-                {
-                    _root = new GameObject("Root")
-                    {
-                        hideFlags = HideFlags.DontSave
-                    };
-                    _root.transform.position = Vector3.zero;
-                    _root.transform.localScale = Vector3.one;
-                    _root.transform.eulerAngles = Vector3.zero;
-                }
-
-                return _root;
-            }
-        }
-
-        private List<GameObject> _mainList;
+        public float MeshSize = 1f;
+        private ReorderableGameObjectList _list;
+        private GUIStyle _lostStyles, _hasFocus;
+        private bool _isUsing;
 
         #region 初始化与关闭
         public void Awake()
         {
-            _mainList = new List<GameObject>();
+            _list = new ReorderableGameObjectList("Surface Root");
+            _hasFocus = new GUIStyle("Button");
+            _lostStyles = new GUIStyle("Button");
+
+            _hasFocus.normal.textColor = new Color(0.33f, 0.9f, 0.33f);
+            _lostStyles.normal.textColor = new Color(0.9f, 0.33f, 0.33f);
         }
 
         public void OnEnable()
         {
             SceneView.beforeSceneGui -= SceneView_beforeSceneGui;
             SceneView.beforeSceneGui += SceneView_beforeSceneGui;
+
+            SceneView.duringSceneGui -= SceneView_duringSceneGui;
+            SceneView.duringSceneGui += SceneView_duringSceneGui;
         }
 
         public void OnDisable()
         {
             SceneView.beforeSceneGui -= SceneView_beforeSceneGui;
+            SceneView.duringSceneGui -= SceneView_duringSceneGui;
         }
 
         public void OnDestroy()
         {
-            foreach (var go in _mainList)
-            {
-                DestroyImmediate(go);
-            }
-
-            if (_root != null)
-            {
-                DestroyImmediate(_root);
-            }
+            _list.Dispose();
         }
 
         private void SceneView_beforeSceneGui(SceneView obj)
         {
             var e = Event.current;
-
-            if (e.type == EventType.MouseDown && e.button == 0)
+            if (_isUsing && e.type == EventType.MouseDown && e.button == 0)
             {
                 var ray = HandleUtility.GUIPointToWorldRay(e.mousePosition);
                 if (Physics.Raycast(ray, out var hitInfo, 1000f, LayerMask.GetMask("Terrain", "Default")))
                 {
-                    var go = CreateMainListObject(hitInfo.point, Size);
-                    _mainList.Add(go);
+                    _list.AddGameObject(hitInfo.point, Size);
+                    Repaint();
                 }
                 e.Use();
             }
         }
-        #endregion
 
-        public void OnGUI()
+        private void DrawActiveTitle()
         {
-            Size = EditorGUILayout.Vector3Field("Size", Size);
-
-            using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+            var rect = EditorGUILayout.GetControlRect(GUILayout.Height(30f));
+            if (_isUsing)
             {
-                var index = 0;
-                foreach (var go in _mainList)
+                var title = "Adding Point Mode";
+                if (GUI.Button(rect, title, _hasFocus))
                 {
-                    EditorGUILayout.ObjectField($"Item{index}", go, typeof(GameObject), false);
-                    ++index;
+                    _isUsing = false;
+                }
+            }
+            else
+            {
+                var title = "Not using";
+                if (GUI.Button(rect, title, _lostStyles))
+                {
+                    _isUsing = true;
                 }
             }
         }
+        #endregion
 
-        private GameObject CreateMainListObject(Vector3 pos, Vector3 size)
+        #region 每帧更新
+        public void OnGUI()
         {
-            var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            go.hideFlags = HideFlags.DontSave;
-            go.transform.SetParent(RootObject.transform, false);
-            go.transform.position = pos;
-            go.transform.eulerAngles = Vector3.zero;
-            go.transform.localScale = size;
-            DestroyImmediate(go.GetComponent<Collider>());
+            DrawActiveTitle();
 
-            Debug.Log($"Create Cube at {pos}");
-            return go;
+            using (new EditorGUILayout.VerticalScope())
+            {
+                MeshSize = EditorGUILayout.FloatField("Vertex Distance", MeshSize);
+                Size = EditorGUILayout.Vector3Field("Size", Size);
+            }
+            _list.DoLayout();
         }
+
+        #endregion
+
+        #region Gizmos
+        private void SceneView_duringSceneGui(SceneView obj)
+        {
+            var points = _list.GetCatmullBomPoints(0.05f);
+            if (points.Count > 2)
+            {
+                Handles.DrawAAPolyLine(points.ToArray());
+            }
+
+            var rightPoints = _list.GetRightCatmullBomPoints(0.05f);
+            if (rightPoints.Count > 2)
+            {
+                Handles.DrawAAPolyLine(rightPoints.ToArray());
+            }
+            var leftPoints = _list.GetLeftCatmullBomPoints(0.05f);
+            if (leftPoints.Count > 2)
+            {
+                Handles.DrawAAPolyLine(leftPoints.ToArray());
+            }
+        }
+        #endregion
 
         [MenuItem("Tools/FlowingWaterSurface Window")]
         public static void Init()
