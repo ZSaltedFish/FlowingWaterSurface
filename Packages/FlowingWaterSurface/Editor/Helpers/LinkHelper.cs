@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace com.ZKnight.FlowingWaterSurface.Editor
+namespace ZKnight.FlowingWaterSurface.Editor
 {
     public static class LinkHelper
     {

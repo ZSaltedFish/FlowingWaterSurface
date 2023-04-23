@@ -1,17 +1,20 @@
-using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace com.ZKnight.FlowingWaterSurface.Editor
+namespace ZKnight.FlowingWaterSurface.Editor
 {
 
     public class FlowingWaterWindow : EditorWindow
     {
         public Vector3 Size = Vector3.one * 0.1f;
-        public float MeshSize = 1f;
+        public Material RiverMaterial;
+        public float VertexLerp = 0.05f;
         private ReorderableGameObjectList _list;
         private GUIStyle _lostStyles, _hasFocus;
         private bool _isUsing;
+
+        private Mesh _srcMesh;
+        private GameObject _meshGo;
 
         #region 初始化与关闭
         public void Awake()
@@ -41,6 +44,15 @@ namespace com.ZKnight.FlowingWaterSurface.Editor
 
         public void OnDestroy()
         {
+            if (_srcMesh)
+            {
+                DestroyImmediate(_srcMesh);
+            }
+
+            if (_meshGo)
+            {
+                DestroyImmediate(_meshGo);
+            }
             _list.Dispose();
         }
 
@@ -77,6 +89,30 @@ namespace com.ZKnight.FlowingWaterSurface.Editor
                 {
                     _isUsing = true;
                 }
+
+                if (GUILayout.Button("Create mesh", _hasFocus))
+                {
+                    if (!_meshGo)
+                    {
+                        _meshGo = new GameObject("Mesh Go");
+                        _meshGo.AddComponent<MeshFilter>();
+                        _meshGo.AddComponent<MeshRenderer>();
+                        _meshGo.hideFlags = HideFlags.DontSave;
+                    }
+
+                    if (_srcMesh)
+                    {
+                        DestroyImmediate(_srcMesh);
+                    }
+                    _srcMesh = new Mesh
+                    {
+                        name = "River mesh",
+                        hideFlags = HideFlags.DontSave
+                    };
+                    _list.CreateMesh(0.1f, VertexLerp, ref _srcMesh);
+                    _meshGo.GetComponent<MeshFilter>().sharedMesh = _srcMesh;
+                    _meshGo.GetComponent<MeshRenderer>().sharedMaterial = RiverMaterial;
+                }
             }
         }
         #endregion
@@ -86,9 +122,10 @@ namespace com.ZKnight.FlowingWaterSurface.Editor
         {
             DrawActiveTitle();
 
+            RiverMaterial = EditorGUILayout.ObjectField("River material", RiverMaterial, typeof(Material), false) as Material;
             using (new EditorGUILayout.VerticalScope())
             {
-                MeshSize = EditorGUILayout.FloatField("Vertex Distance", MeshSize);
+                VertexLerp = EditorGUILayout.FloatField("Vertex Lerp", VertexLerp);
                 Size = EditorGUILayout.Vector3Field("Size", Size);
             }
             _list.DoLayout();
@@ -99,18 +136,18 @@ namespace com.ZKnight.FlowingWaterSurface.Editor
         #region Gizmos
         private void SceneView_duringSceneGui(SceneView obj)
         {
-            var points = _list.GetCatmullBomPoints(0.05f);
+            var points = _list.GetCatmullBomPoints(VertexLerp);
             if (points.Count > 2)
             {
                 Handles.DrawAAPolyLine(points.ToArray());
             }
 
-            var rightPoints = _list.GetRightCatmullBomPoints(0.05f);
+            var rightPoints = _list.GetRightCatmullBomPoints(VertexLerp);
             if (rightPoints.Count > 2)
             {
                 Handles.DrawAAPolyLine(rightPoints.ToArray());
             }
-            var leftPoints = _list.GetLeftCatmullBomPoints(0.05f);
+            var leftPoints = _list.GetLeftCatmullBomPoints(VertexLerp);
             if (leftPoints.Count > 2)
             {
                 Handles.DrawAAPolyLine(leftPoints.ToArray());

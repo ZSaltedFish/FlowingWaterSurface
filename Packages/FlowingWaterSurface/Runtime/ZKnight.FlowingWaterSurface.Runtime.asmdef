@@ -1,10 +1,8 @@
 {
-    "name": "com.ZKnight.FlowingWaterSurface.Editor",
-    "rootNamespace": "com.ZKnight.FlowingWaterSurface.Editor",
+    "name": "ZKnight.FlowingWaterSurface.Runtime",
+    "rootNamespace": "ZKnight.FlowingWaterSurface.Runtime",
     "references": [],
-    "includePlatforms": [
-        "Editor"
-    ],
+    "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,

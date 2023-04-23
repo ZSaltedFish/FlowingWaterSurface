@@ -2,7 +2,7 @@
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace com.ZKnight.FlowingWaterSurface.Editor
+namespace ZKnight.FlowingWaterSurface.Editor
 {
     [Serializable]
     public class FlowingObject 

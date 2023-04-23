@@ -4,7 +4,7 @@ using UnityEditorInternal;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace com.ZKnight.FlowingWaterSurface.Editor
+namespace ZKnight.FlowingWaterSurface.Editor
 {
     [Serializable]
     public class ReorderableGameObjectList : IDisposable
@@ -112,6 +112,18 @@ namespace com.ZKnight.FlowingWaterSurface.Editor
         public void Dispose()
         {
             Object.DestroyImmediate(_root);
+        }
+
+        public void CreateMesh(float distance, float step, ref Mesh mesh)
+        {
+            var map = new VerticesMap(distance);
+
+            var leftList = GetLeftCatmullBomPoints(step);
+            var midList = GetCatmullBomPoints(step);
+            var rightList = GetRightCatmullBomPoints(step);
+
+            map.Generate(midList, leftList, rightList);
+            map.CreateMesh(ref mesh);
         }
     }
 }
