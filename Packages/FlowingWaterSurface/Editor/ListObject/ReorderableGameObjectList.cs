@@ -114,7 +114,7 @@ namespace ZKnight.FlowingWaterSurface.Editor
             Object.DestroyImmediate(_root);
         }
 
-        public void CreateMesh(float distance, float step, ref Mesh mesh)
+        public List<MeshDivision> CreateMesh(float distance, float step)
         {
             var map = new VerticesMap(distance);
 
@@ -123,7 +123,7 @@ namespace ZKnight.FlowingWaterSurface.Editor
             var rightList = GetRightCatmullBomPoints(step);
 
             map.Generate(midList, leftList, rightList);
-            map.CreateMesh(ref mesh);
+            return map.CreateMesh();
         }
     }
 }

@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace ZKnight.FlowingWaterSurface.Editor
 {
     public class VerticesMap
     {
+        public const int MAX_VERTEX = 64000;
         private List<VerticesRowGroup> _rows;
         private float _distance;
 
@@ -50,46 +50,32 @@ namespace ZKnight.FlowingWaterSurface.Editor
             _rows[_rows.Count - 1].SetLastRowVertexDetial(_rows[_rows.Count - 2]);
         }
 
-        public void CreateMesh(ref Mesh mesh)
+        public List<MeshDivision> CreateMesh()
         {
-            SetVertex(ref mesh);
-            SetTriangle(ref mesh);
-        }
-
-        private void SetVertex(ref Mesh mesh)
-        {
-            var groups = new List<VertexGroup>();
-            foreach (var rowGroup in _rows)
+            var list = new List<MeshDivision>();
+            var curCount = 0;
+            var startIndex = 0;
+            for (var index = 0; index < _rows.Count; ++index)
             {
-                groups.AddRange(rowGroup.VertexGroupList);
+                var row = _rows[index];
+                curCount += row.TotalCount;
+                if (curCount > MAX_VERTEX)
+                {
+                    var division = _rows.GetRange(startIndex, index - startIndex);
+                    list.Add(new MeshDivision($"River mesh {list.Count}", division));
+                    curCount = 0;
+                    --index;
+                    startIndex = index;
+                }
             }
+            var lastDivision = _rows.GetRange(startIndex, _rows.Count - startIndex);
+            list.Add(new MeshDivision($"River mesh {list.Count}", lastDivision));
 
-            var vertexList = new List<Vector3>();
-            var normals = new List<Vector3>();
-            var tangents = new List<Vector4>();
-
-            foreach (var group in groups)
+            foreach (var division in list)
             {
-                vertexList.Add(group.Vertex);
-                normals.Add(group.Normal);
-                tangents.Add(group.Tangent);
+                division.Run();
             }
-
-            mesh.SetVertices(vertexList);
-            mesh.SetNormals(normals);
-            mesh.SetTangents(tangents);
-        }
-
-        private void SetTriangle(ref Mesh mesh)
-        {
-            var triangleList = new List<int>();
-            for (int index = 0; index < _rows.Count - 1; ++index)
-            {
-                var rowGroup = _rows[index];
-                var next = _rows[index + 1];
-                triangleList.AddRange(rowGroup.GenerateTriangle(next));
-            }
-            mesh.SetTriangles(triangleList.ToArray(), 0);
+            return list;
         }
     }
 }

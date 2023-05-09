@@ -142,6 +142,15 @@
         "com.unity.render-pipelines.universal": "1.0.0"
       }
     },
+    "com.zknight.threnderer": {
+      "version": "https://github.com/ZSaltedFish/THRenderer.git?path=Packages/THRenderer",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.render-pipelines.universal": "1.0.0"
+      },
+      "hash": "388e9cd16127389d35d5ce8095d91f2b20db0c02"
+    },
     "com.unity.modules.ai": {
       "version": "1.0.0",
       "depth": 0,

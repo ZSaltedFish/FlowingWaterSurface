@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -13,8 +14,8 @@ namespace ZKnight.FlowingWaterSurface.Editor
         private GUIStyle _lostStyles, _hasFocus;
         private bool _isUsing;
 
-        private Mesh _srcMesh;
-        private GameObject _meshGo;
+        private List<Mesh> _meshes = new List<Mesh>();
+        private GameObject _meshGoRoot;
 
         #region 初始化与关闭
         public void Awake()
@@ -44,14 +45,14 @@ namespace ZKnight.FlowingWaterSurface.Editor
 
         public void OnDestroy()
         {
-            if (_srcMesh)
+            foreach (var mesh in _meshes)
             {
-                DestroyImmediate(_srcMesh);
+                DestroyImmediate(mesh);
             }
 
-            if (_meshGo)
+            if (_meshGoRoot)
             {
-                DestroyImmediate(_meshGo);
+                DestroyImmediate(_meshGoRoot);
             }
             _list.Dispose();
         }
@@ -92,28 +93,41 @@ namespace ZKnight.FlowingWaterSurface.Editor
 
                 if (GUILayout.Button("Create mesh", _hasFocus))
                 {
-                    if (!_meshGo)
+                    foreach (var mesh in _meshes)
                     {
-                        _meshGo = new GameObject("Mesh Go");
-                        _meshGo.AddComponent<MeshFilter>();
-                        _meshGo.AddComponent<MeshRenderer>();
-                        _meshGo.hideFlags = HideFlags.DontSave;
+                        DestroyImmediate(mesh);
                     }
 
-                    if (_srcMesh)
+                    if (_meshGoRoot)
                     {
-                        DestroyImmediate(_srcMesh);
+                        DestroyImmediate(_meshGoRoot);
                     }
-                    _srcMesh = new Mesh
+                    _meshGoRoot = new GameObject("River Root")
                     {
-                        name = "River mesh",
                         hideFlags = HideFlags.DontSave
                     };
-                    _list.CreateMesh(0.1f, VertexLerp, ref _srcMesh);
-                    _meshGo.GetComponent<MeshFilter>().sharedMesh = _srcMesh;
-                    _meshGo.GetComponent<MeshRenderer>().sharedMaterial = RiverMaterial;
+                    var divisions = _list.CreateMesh(0.1f, VertexLerp);
+                    foreach (var division in divisions)
+                    {
+                        CreateMeshObject(division);
+                    }
                 }
             }
+        }
+
+        private void CreateMeshObject(MeshDivision division)
+        {
+            var go = new GameObject(division.SrcMesh.name)
+            {
+                hideFlags = HideFlags.DontSave
+            };
+            go.transform.SetParent(_meshGoRoot.transform, false);
+            go.transform.position = division.SrcPosition;
+            var filter = go.AddComponent<MeshFilter>();
+            var renderer = go.AddComponent<MeshRenderer>();
+            filter.sharedMesh = division.SrcMesh;
+            renderer.sharedMaterial = RiverMaterial;
+            _meshes.Add(division.SrcMesh);
         }
         #endregion
 
