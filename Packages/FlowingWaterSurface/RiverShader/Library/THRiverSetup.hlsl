@@ -9,6 +9,7 @@ void SetupRiver(RiverVaryings input, inout River river)
     river.flowingDire = river.tangent.xyz;
     river.viewDire = input.viewDirWS;
     river.screenPos = input.screenPos;
+    river.UV = input.UV;
     river.flowSpeed = input.color.r;
     river.roughness = 0.04;
     river.F0 = float3(1, 1, 1);
@@ -16,6 +17,7 @@ void SetupRiver(RiverVaryings input, inout River river)
     river.waterFresnel = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _WaterFresnel);
     river.deepColor = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _DeepColor);
     river.deepValue = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _DeepLerp);
+    river.riverLength = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _RiverLength);
     river.color = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Color);
     river.colorDensity = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _ColorDensity);
 
@@ -25,6 +27,13 @@ void SetupRiver(RiverVaryings input, inout River river)
     river.waterFlashing.flashingDensity = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _FlashingDensity);
 
     river.waterFoam.foamDeep = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _FoamDeep);
+    
+    river.waterWave.waveScale = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _WaveScale);
+    river.waterWave.waveStepValue = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _WaveStepValue);
+
+    river.waterFlowing.OffsetUV = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _OffsetUV);
+    river.waterFlowing.MapTile = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _NormalTile).xy;
+    river.waterFlowing.StepValue = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _NormalStepValue);
 
 }
 

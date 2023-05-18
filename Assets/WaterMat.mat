@@ -155,11 +155,11 @@ Material:
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
     - _BumpScale: 10
-    - _CellDensity: 100
-    - _CellPower: 90.3
+    - _CellDensity: 30.99
+    - _CellPower: 3.25
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
-    - _ColorDensity: 0.166
+    - _ColorDensity: 0.105
     - _ColorLerp: 0.273
     - _Cull: 2
     - _CullMode: 2
@@ -172,10 +172,10 @@ Material:
     - _EnableHeightBlend: 0
     - _EnableInstancedPerPixelNormal: 1
     - _EnvironmentReflections: 1
-    - _FlashingDensity: 50
+    - _FlashingDensity: 150
     - _FlashingPower: 20
-    - _FlashingThreshold: 0.04
-    - _FoamDeep: 5
+    - _FlashingThreshold: 0
+    - _FoamDeep: 1.5
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
@@ -185,13 +185,16 @@ Material:
     - _Metallic1: 0
     - _Metallic2: 0
     - _Metallic3: 0
-    - _NormalStrength: 0.99734
+    - _NormalStepValue: 0.8
+    - _NormalStrength: 1
     - _NumLayersCount: 1
     - _OcclusionStrength: 1
+    - _OffsetUV: 0
     - _Parallax: 0.005
     - _QueueControl: 0
     - _QueueOffset: 0
     - _ReceiveShadows: 1
+    - _RiverLength: 100
     - _Smoothness: 0.5
     - _Smoothness0: 0.5
     - _Smoothness1: 0.5
@@ -204,13 +207,18 @@ Material:
     - _Strength: 39.26
     - _Surface: 0
     - _WaterFresnel: 0
+    - _WaveScale: 0.01
+    - _WaveStepValue: 0.715
     - _WorkflowMode: 1
     - _ZWrite: 1
+    - _waveScale: 10
+    - _waveStepValue: 0.7
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 0.39308167, g: 1, b: 1, a: 1}
     - _DeepColor: {r: 0.27340686, g: 0.43284336, b: 0.6792453, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _NormalTile: {r: 300, g: 150, b: 1, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []
 --- !u!114 &6380617243586954435

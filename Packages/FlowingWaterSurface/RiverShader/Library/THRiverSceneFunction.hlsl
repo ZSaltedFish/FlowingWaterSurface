@@ -25,24 +25,61 @@ inline float2 GetFlowingUV(float3 positionWS)
     return positionWS.xx;
 }
 
+float2 UVCalculate(River river)
+{
+    float2 uv = river.UV;
+    uv.x += river.waterFlowing.OffsetUV + _Time.x / river.riverLength;
+    return uv;
+}
+
+float4 DynamicNormal(River river)
+{
+    float2 uv = UVCalculate(river);
+    float2 uvOffset = river.waterFlowing.MapTile;
+    float p0 = lerp(0.3, 0.7, GradientNoise(uv, uvOffset.x));
+    float p1 = lerp(0.3, 0.7, GradientNoise(-uv, uvOffset.y));
+
+    float3 normalColor = float3(p0, p1, 1);
+    return float4(normalColor, 1);
+
+}
+
 float3 GetNormal(River river, float2 uv)
 {
     float4 normal = SAMPLE_TEXTURE2D(_Normal, sampler_Normal, uv);
+
     float3 n = RiverUnpackNormal(normal);
-    
-    float3x3 transposeTangent = transpose(float3x3(river.tangent.xyz, river.biTangent.xyz, river.normal.xyz));
+    float3x3 transposeTangent = float3x3(river.tangent.xyz, river.biTangent.xyz, river.normal.xyz);
+    //float3x3 transposeTangent = transpose(float3x3(river.tangent.xyz, river.biTangent.xyz, river.normal.xyz));
     float3 normalWS = normalize(mul(n, transposeTangent));
     return normalWS;
 }
 
 float3 GetNormal(River river)
 {
-    float cellDensity = max(0.001, UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _CellDensity));
-    float u = river.position.x / cellDensity - ceil(river.position.x / cellDensity);
-    float v = river.position.z / cellDensity - ceil(river.position.z / cellDensity);
-    float2 uv = float2(u, v);
-    float2 uv1 = river.tangent.xz * _Time.y * 2 / cellDensity + uv;
-    float2 uv2 = river.tangent.xz * -_Time.y / cellDensity + uv;
+    //float2 uv = float2(u, v);
+    float2 uv = UVCalculate(river);
+    float2 uv1 = uv * river.waterFlowing.MapTile;
+    float2 uv2 = uv1;
+    uv2.y *= -0.5;
+
+    //float2 uv1 = river.tangent.xz * _Time.y * 2 / cellDensity + uv;
+    //float2 uv2 = river.tangent.xz * -_Time.y / cellDensity + uv;
+    
+    float3 normal1 = GetNormal(river, uv1);
+    float3 normal2 = GetNormal(river, uv2);
+    
+    float normalStrength = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _NormalStrength);
+    float3 nor = RiverBlendNormal(normal1, normal2);
+    return NormalStrength(nor, normalStrength);
+}
+
+float3 GetFlashingNormal(River river)
+{
+    float density = max(0, river.waterFlashing.flashingDensity);
+    float2 uv = river.UV * density;
+    float2 uv1 = river.tangent.xz * -_Time.y * 2 / density + uv;
+    float2 uv2 = river.tangent.xz * _Time.y / density + uv;
     
     float3 normal1 = GetNormal(river, uv1);
     float3 normal2 = GetNormal(river, uv2);

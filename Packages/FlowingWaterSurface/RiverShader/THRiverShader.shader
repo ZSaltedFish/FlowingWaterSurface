@@ -6,16 +6,23 @@ Shader "THRenderer/THRiver"
         _ColorDensity("Color Density", range(0, 1)) = 0.2
         _DeepColor ("Deep Color", Color) = (0.11, 0.24, 0.44, 1)
         _DeepLerp ("Deep Density", float) = 1
-        _CellDensity ("Cell Density", float) = 1
-        _CellPower ("Cell power", float) = 1
+
+        _RiverLength ("River length", float) = 100
         _Normal("Normal Texture", 2D) = "Bump"{}
+        
+        _OffsetUV ("UV Offset", int) = 1
+        _NormalTile ("Normal Tile", Vector) = (1, 1, 1, 1)
+        _NormalStepValue ("Step Value", range(0, 1)) = 0.8
+
         _NormalStrength("Normal Strength", range(0.995, 1.005)) = 1
         _WaterFresnel ("Fresnel Effect", range(0, 1)) = 0.5
-        _ShadowMap("Shadow map", 2D) = "white" {}
 
         _FlashingThreshold ("Flashing Threshold", range(0, 1)) = 0.2
         _FlashingPower ("Flashing Power", float) = 5
         _FlashingDensity ("Flashing Density", float) = 1
+
+        _WaveScale ("Wave scale", float) = 10
+        _WaveStepValue ("Wave step value", range(0, 1)) = 0.7
 
         _FoamDeep ("Foam Deep", float) = 0.1
 

@@ -8,16 +8,13 @@ TEXTURE2D(_CameraOpaqueTexture);
 SAMPLER(sampler_CameraOpaqueTexture);
 TEXTURE2D(_CameraDepthTexture);
 SAMPLER(sampler_CameraDepthTexture);
-TEXTURE2D(_ShadowMap);
-SAMPLER(sampler_ShadowMap);
 
 UNITY_INSTANCING_BUFFER_START(UnityPerMaterial)
 UNITY_DEFINE_INSTANCED_PROP(float4, _Normal_ST)
 UNITY_DEFINE_INSTANCED_PROP(float4, _Color)
 UNITY_DEFINE_INSTANCED_PROP(float4, _DeepColor)
 UNITY_DEFINE_INSTANCED_PROP(float, _DeepLerp)
-UNITY_DEFINE_INSTANCED_PROP(float, _CellDensity)
-UNITY_DEFINE_INSTANCED_PROP(float, _CellPower)
+UNITY_DEFINE_INSTANCED_PROP(float, _RiverLength)
 UNITY_DEFINE_INSTANCED_PROP(float, _NormalStrength)
 UNITY_DEFINE_INSTANCED_PROP(float, _WaterFresnel)
 UNITY_DEFINE_INSTANCED_PROP(float, _ColorDensity)
@@ -25,6 +22,11 @@ UNITY_DEFINE_INSTANCED_PROP(float, _FlashingThreshold)
 UNITY_DEFINE_INSTANCED_PROP(float, _FlashingPower)
 UNITY_DEFINE_INSTANCED_PROP(float, _FlashingDensity)
 UNITY_DEFINE_INSTANCED_PROP(float, _FoamDeep)
+UNITY_DEFINE_INSTANCED_PROP(float, _WaveScale)
+UNITY_DEFINE_INSTANCED_PROP(float, _WaveStepValue)
+UNITY_DEFINE_INSTANCED_PROP(float, _OffsetUV)
+UNITY_DEFINE_INSTANCED_PROP(float4, _NormalTile)
+UNITY_DEFINE_INSTANCED_PROP(float, _NormalStepValue)
 UNITY_INSTANCING_BUFFER_END(UnityPerMaterial)
 
 RiverVaryings RiverVertex(RiverAttributes input)
@@ -41,7 +43,8 @@ RiverVaryings RiverVertex(RiverAttributes input)
     output.tangentWS = float4(TransformObjectToWorldNormal(input.tangentOS.xyz) * input.tangentOS.w, 1);
     output.viewDirWS = GetWorldSpaceViewDir(positionWS);
     output.color = input.color;
-
+    output.UV = input.texcoord.xy;
+    
     return output;
 }
 

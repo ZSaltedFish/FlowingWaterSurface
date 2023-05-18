@@ -3,11 +3,6 @@
 
 #define PI 3.141592653
 
-float ShadowMapping(float v)
-{
-    return SAMPLE_TEXTURE2D(_ShadowMap, sampler_ShadowMap, float2(v, 0.5)).r;
-}
-
 float RiverDFunction(float NdotH, float roughness)
 {
     float a = roughness * roughness;
@@ -42,11 +37,6 @@ float3 DirectionLightFunction(float roughness, float3 F0, float3 mainLightColor,
     float F = RiverFLightFunction(HdotL, F0);
     float3 section = D * G * F / (4 * NdotL * NdotV);
     return section * mainLightColor * NdotL * PI;
-}
-
-float3 DiffuseWater(float3 lightColor, float NdotL)
-{
-    return ShadowMapping(NdotL) * lightColor;
 }
 
 float2 LUT_Approx(float roughness, float NoV)
@@ -98,10 +88,27 @@ float3 FlowingRiverLight(River river, Light light, float3 N, float3 V, float3 Nd
     float NdotL = max(dot(N, L), 1e-5);
 
     float shadow = light.shadowAttenuation * light.distanceAttenuation;
-    /*float3 direLight = DirectionLightFunction(river.roughness, river.F0, light.color, HdotN,
-                        NdotL, NdotV, HdotL) * shadow*/;
-    return VoronoiTest(river, light, HdotN) * shadow + GetFoam(river, light, deep);
+    float3 direLight = smoothstep(0.5, 0.6, light.color) * DirectionLightFunction(river.roughness, river.F0, light.color, HdotN,
+                        NdotL, NdotV, HdotL) * shadow;
+    return GetFoam(river, light, deep) + direLight * 0.001;
     //return direLight;
+}
+
+float3 ExFlowingRiverLight(River river, Light light, float3 V, float deep)
+{
+    float3 N = GetFlashingNormal(river);
+    float3 L = normalize(light.direction);
+    float3 H = normalize(L + V);
+    
+    float NdotV = max(dot(N, V), 1e-5);
+    float HdotN = max(dot(H, N), 1e-5);
+    float HdotL = max(dot(H, L), 1e-5);
+    float NdotL = max(dot(N, L), 1e-5);
+
+    float shadow = light.shadowAttenuation * light.distanceAttenuation;
+    float3 direLight = smoothstep(0.5, 0.6, light.color) * DirectionLightFunction(river.roughness, river.F0, light.color, HdotN,
+                        NdotL, NdotV, HdotL) * shadow;
+    return GetFoam(river, light, deep) + direLight * 0.001;
 }
 
 float3 UnderwaterColor(River river, float2 sceneUV, float deep)
@@ -121,6 +128,7 @@ float3 UnderwaterColor(River river, float2 sceneUV, float deep)
 
 float3 RiverRender(River river, RiverVaryings input)
 {
+    float3 orginN = river.normal;
     float3 N = GetNormal(river);
     float3 V = normalize(river.viewDire);
     float3 reflectView = -reflect(V, N);
@@ -143,15 +151,17 @@ float3 RiverRender(River river, RiverVaryings input)
     float4 shadowCoord = TransformWorldToShadowCoord(river.position);
     Light mainLight = GetMainLight(shadowCoord);
     
-    float3 direLight = FlowingRiverLight(river, mainLight, N, V, NdotV, deep);
+    //float3 direLight = FlowingRiverLight(river, mainLight, N, V, NdotV, deep);
+    float3 direLight = ExFlowingRiverLight(river, mainLight, V, deep);
     uint additionalLightCount = GetAdditionalLightsCount();
     for (int i = 0; i < additionalLightCount; ++i)
     {
         Light additionalLight = GetAdditionalLight(i, river.position);
-        direLight += FlowingRiverLight(river, additionalLight, N, V, NdotV, deep);
+        direLight += ExFlowingRiverLight(river, additionalLight, V, deep);
     }
     
-    float3 uvSet = UVSet(river.position.xz, 1, 5, -10, 0.7).xxx;
-    return direLight + indireSpecLight + uvSet;
+    //return DynamicNormal(river);
+    //float3 uvSet = UVSet(river.position.xz, river.waterWave.waveScale, 5, -10, river.waterWave.waveStepValue).xxx;
+    return direLight + indireSpecLight;
 }
 #endif

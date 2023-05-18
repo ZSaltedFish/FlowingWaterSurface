@@ -21,6 +21,7 @@ struct RiverVaryings
     float4 positionCS : SV_POSITION;
     float4 screenPos : TEXCOORD4;
     float4 color : TEXCOORD5;
+    float2 UV : TEXCOORD6;
     UNITY_VERTEX_INPUT_INSTANCE_ID
 };
 
@@ -36,6 +37,19 @@ struct WaterFoam
     float foamDeep;
 };
 
+struct WaterWave
+{
+    float waveScale;
+    float waveStepValue;
+};
+
+struct WaterFlowing
+{
+    int OffsetUV;
+    float2 MapTile;
+    float StepValue;
+};
+
 struct River
 {
     float4 position;
@@ -43,6 +57,8 @@ struct River
     float4 tangent;
     float3 biTangent;
     float3 flowingDire;
+    float2 UV;
+    float riverLength;
     
     float3 viewDire;
     float4 screenPos;
@@ -57,5 +73,7 @@ struct River
     
     WaterFlashing waterFlashing;
     WaterFoam waterFoam;
+    WaterWave waterWave;
+    WaterFlowing waterFlowing;
 };
 #endif
