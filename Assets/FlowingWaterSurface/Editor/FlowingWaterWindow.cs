@@ -10,15 +10,14 @@ namespace ZKnight.FlowingWaterSurface.Editor
         public Vector3 Size = Vector3.one * 0.1f;
         public Material RiverMaterial;
         public float VertexLerp = 0.05f;
-        private ReorderableGameObjectList _list;
+        [SerializeField] private ReorderableGameObjectList _list;
         private GUIStyle _lostStyles, _hasFocus;
-        private bool _isUsing;
+        [SerializeField] private bool _isUsing;
 
-        private List<Mesh> _meshes = new List<Mesh>();
-        private GameObject _meshGoRoot;
+        [SerializeField] private List<Mesh> _meshes = new List<Mesh>();
+        [SerializeField] private GameObject _meshGoRoot;
 
         public bool ShowVertexDetail = false;
-
         #region 初始化与关闭
         public void Awake()
         {
@@ -145,6 +144,7 @@ namespace ZKnight.FlowingWaterSurface.Editor
                 VertexLerp = EditorGUILayout.FloatField("Vertex Lerp", VertexLerp);
                 Size = EditorGUILayout.Vector3Field("Size", Size);
             }
+
             _list.DoLayout();
         }
 

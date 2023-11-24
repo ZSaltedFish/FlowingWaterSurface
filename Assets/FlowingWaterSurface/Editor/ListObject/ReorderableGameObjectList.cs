@@ -9,11 +9,12 @@ namespace ZKnight.FlowingWaterSurface.Editor
     [Serializable]
     public class ReorderableGameObjectList : IDisposable
     {
-        private readonly GameObject _root;
-        public GameObject RootObject => _root;
+        [SerializeField] private readonly GameObject _root;
+        [SerializeField] public GameObject RootObject => _root;
 
         public ReorderableList ReoderList;
-        private List<FlowingObject> _goes;
+        [SerializeField] private List<FlowingObject> _goes;
+
 
         public ReorderableGameObjectList(string rootName)
         {
@@ -35,6 +36,10 @@ namespace ZKnight.FlowingWaterSurface.Editor
 
         public void DoLayout()
         {
+            if (ReoderList == null)
+            {
+                ReoderList = new ReorderableList(_goes, typeof(FlowingObject));
+            }
             ReoderList.DoLayoutList();
         }
 
