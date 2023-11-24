@@ -17,6 +17,8 @@ namespace ZKnight.FlowingWaterSurface.Editor
         private List<Mesh> _meshes = new List<Mesh>();
         private GameObject _meshGoRoot;
 
+        public bool ShowVertexDetail = false;
+
         #region 初始化与关闭
         public void Awake()
         {
@@ -136,6 +138,7 @@ namespace ZKnight.FlowingWaterSurface.Editor
         {
             DrawActiveTitle();
 
+            ShowVertexDetail = EditorGUILayout.Toggle("Show vertex detail", ShowVertexDetail);
             RiverMaterial = EditorGUILayout.ObjectField("River material", RiverMaterial, typeof(Material), false) as Material;
             using (new EditorGUILayout.VerticalScope())
             {
@@ -165,6 +168,32 @@ namespace ZKnight.FlowingWaterSurface.Editor
             if (leftPoints.Count > 2)
             {
                 Handles.DrawAAPolyLine(leftPoints.ToArray());
+            }
+
+            if (ShowVertexDetail)
+            {
+                var childCount = _meshGoRoot.transform.childCount;
+                for (var i = 0; i < childCount; ++i)
+                {
+                    var child = _meshGoRoot.transform.GetChild(i);
+                    var mesh = child.GetComponent<MeshFilter>().sharedMesh;
+                    var vertices = mesh.vertices;
+                    for (var j = 0; j < vertices.Length; ++j)
+                    {
+                        // draw tangent
+                        var pos = child.TransformPoint(vertices[j]);
+                        var tan = mesh.tangents[j];
+                        var tanPos = pos + child.TransformDirection(tan) * 0.1f;
+                        Handles.color = Color.red;
+                        Handles.DrawLine(pos, tanPos);
+
+                        // draw normal
+                        var normal = mesh.normals[j];
+                        var normalPos = pos + child.TransformDirection(normal) * 0.1f;
+                        Handles.color = Color.green;
+                        Handles.DrawLine(pos, normalPos);
+                    }
+                }
             }
         }
         #endregion
