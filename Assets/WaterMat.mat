@@ -20,7 +20,7 @@ Material:
   m_CustomRenderQueue: 3000
   stringTagMap: {}
   disabledShaderPasses: []
-  m_LockedProperties: 
+  m_LockedProperties: _OffsetUV
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -159,7 +159,7 @@ Material:
     - _CellPower: 3.25
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
-    - _ColorDensity: 0.105
+    - _ColorDensity: 0.095
     - _ColorLerp: 0.273
     - _Cull: 2
     - _CullMode: 2
@@ -218,7 +218,7 @@ Material:
     - _Color: {r: 0.39308167, g: 1, b: 1, a: 1}
     - _DeepColor: {r: 0.27340686, g: 0.43284336, b: 0.6792453, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _NormalTile: {r: 300, g: 150, b: 1, a: 1}
+    - _NormalTile: {r: 100, g: 100, b: 1, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []
 --- !u!114 &6380617243586954435

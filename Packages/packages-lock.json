@@ -134,14 +134,6 @@
         "com.unity.modules.imgui": "1.0.0"
       }
     },
-    "com.zknight.flowingwatersurface": {
-      "version": "file:FlowingWaterSurface",
-      "depth": 0,
-      "source": "embedded",
-      "dependencies": {
-        "com.unity.render-pipelines.universal": "1.0.0"
-      }
-    },
     "com.zknight.threnderer": {
       "version": "https://github.com/ZSaltedFish/THRenderer.git?path=Packages/THRenderer",
       "depth": 0,
