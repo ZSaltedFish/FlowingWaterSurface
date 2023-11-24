@@ -101,9 +101,9 @@ namespace ZKnight.FlowingWaterSurface.Editor
                     var nextVertexIndex = Mathf.CeilToInt(percent * lengthNext + next.StartIndex);
                     var nextVertex = next[nextVertexIndex];
 
-                    var tangent = (curNext.Vertex - nextVertex.Vertex).normalized;
-                    var right = (index == EndIndex) ? (curNext.Vertex - this[MidIndex].Vertex).normalized : (this[index + 1].Vertex - curNext.Vertex).normalized;
-                    var normal = Vector3.Cross(right, -tangent).normalized;
+                    var tangent = (nextVertex.Vertex - curNext.Vertex).normalized;
+                    var left = (index == EndIndex) ? (curNext.Vertex - this[MidIndex].Vertex).normalized : (this[index + 1].Vertex - curNext.Vertex).normalized;
+                    var normal = Vector3.Cross(left, tangent).normalized;
 
                     curNext.Tangent = tangent;
                     curNext.Tangent.w = -1f;
