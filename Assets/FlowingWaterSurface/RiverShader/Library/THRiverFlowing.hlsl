@@ -142,6 +142,7 @@ float3 RiverRender(River river, RiverVaryings input)
     float3 envColor = ReflectEEnvironment(river.roughness, reflectView);
     
     float th = 1 - NdotV;
+    th = 0;
     th = th * th * th * th * th;
     float3 ambient = lerp(envColor, sceneColor, 1 - th);
     ambient = lerp(ambient, river.color, river.colorDensity);
