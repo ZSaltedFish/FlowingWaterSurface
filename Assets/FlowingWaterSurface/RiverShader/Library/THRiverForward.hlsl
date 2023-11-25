@@ -71,10 +71,11 @@ float4 RiverTestFragment(RiverVaryings input) : SV_TARGET
     UNITY_SETUP_INSTANCE_ID(river);
     SetupRiver(input, river);
     
-    float2 dire = normalize(river.tangent.xz) * _Time.y;
-    float2 uv = RotateUVDirection(river.UV, dire);
+    float2 dire = normalize(river.tangent.xz);
+    float2 uv = RotateUVDirection(river.UV, dire) + _Time.x;
     float3 color = GetNormal(river, uv);
     
+    //return float4(dire.x, 0, dire.y, 1);
     return float4(color, 1);
 }
 

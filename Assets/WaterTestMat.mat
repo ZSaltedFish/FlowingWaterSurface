@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: WaterTestMat
-  m_Shader: {fileID: 4800000, guid: d0f35b233fc1ea547a046757b833ee38, type: 3}
+  m_Shader: {fileID: 4800000, guid: 306436770bfdbca40abf92d07e80f6af, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -78,7 +78,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _Normal:
         m_Texture: {fileID: 2800000, guid: a3c45e90399300744974ea3068c15b75, type: 3}
-        m_Scale: {x: 1, y: 1}
+        m_Scale: {x: 100, y: 100}
         m_Offset: {x: 0, y: 0}
     - _Normal0:
         m_Texture: {fileID: 0}
