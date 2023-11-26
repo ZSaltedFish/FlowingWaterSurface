@@ -9,6 +9,7 @@ Shader "THRenderer/THRiverTest"
         [Enum(UnityEngine.Rendering.BlendMode)] _DstBlend("Dst Blend", float) = 10.0
         [Enum(UnityEngine.Rendering.CullMode)] _CullMode ("Cull Mode", float) = 1.0
         [Enum(off, 0, On, 1)] _ZWrite("Z Write", float) = 1.0
+        [Toggle(WORLD_POS_UV)] WORLD_POS_UV ("World Pos UV", float) = 0.0
     }
 
     SubShader
@@ -25,6 +26,7 @@ Shader "THRenderer/THRiverTest"
             #pragma multi_complie_instancing
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS_CASCADE
+            #pragma shader_feature_local WORLD_POS_UV
             #include "Library/THRiverForward.hlsl"
             #pragma vertex RiverVertex
             #pragma fragment RiverTestFragment

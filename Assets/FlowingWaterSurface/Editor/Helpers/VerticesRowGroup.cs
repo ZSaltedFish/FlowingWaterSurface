@@ -6,19 +6,11 @@ namespace ZKnight.FlowingWaterSurface.Editor
     public class VerticesRowGroup
     {
         public List<VertexGroup> VertexGroups;
-        public int StartIndex => _startIndex;
-        public int EndIndex => _endIndex;
-        public int MidIndex => _startIndex + _leftCount;
-        public int TotalCount => _leftCount + _rightCount + 1;
-        public VertexGroup StartVertex => VertexGroups[_startIndex];
-        public VertexGroup EndVertex => VertexGroups[_endIndex];
-        public VertexGroup MidVertex => VertexGroups[MidIndex];
-        public int LeftCount => _leftCount;
-        public int RightCount => _rightCount;
+        public float Distance => _distance;
+        public VertexGroup MidVertex => VertexGroups[_midIndex].Vertex;
 
         private float _distance;
-        private int _leftCount, _rightCount;
-        private int _startIndex = 0, _endIndex = 0;
+        private int _midIndex;
 
         public VertexGroup this[int index]
         {
@@ -31,52 +23,57 @@ namespace ZKnight.FlowingWaterSurface.Editor
             _distance = distance;
         }
 
+        /// <summary>
+        /// 通过计算获取顶点数量
+        /// </summary>
+        /// <param name="mid">中央顶点</param>
+        /// <param name="target">目标顶点</param>
+        /// <returns></returns>
+        public int GetCount(Vector3 mid, Vector3 target)
+        {
+            var distance = Vector3.Distance(mid, target);
+            var count = Mathf.FloorToInt(distance / _distance) + 1;
+            return count;
+        }
+
+        public void CreateLeft(Vector3 mid, Vector3 left, int leftCount)
+        {
+            var dLeft = (mid - left).normalized;
+            var distance = Vector3.Distance(mid, left);
+            var indi = distance / leftCount;
+            for (var i = 0; i < leftCount; ++i)
+            {
+                var pos = i * indi * dLeft + left;
+                VertexGroups.Add(pos);
+            }
+        }
+
+        public void CreateMiddleVectex(Vector3 mid)
+        {
+            _midIndex = VertexGroups.Count;
+            VertexGroups.Add(mid);
+        }
+
+        public void CreateRight(Vector3 mid, Vector3 right, int rightCount)
+        {
+            var dRight = (right - mid).normalized;
+            var distance = Vector3.Distance(mid, right);
+            var indi = distance / rightCount;
+            for (var i = 1; i <= rightCount; ++i)
+            {
+                var pos = i * indi * dRight + mid;
+                VertexGroups.Add(pos);
+            }
+        }
+
         #region 数据准备
-        /// <summary>
-        /// 初始化
-        /// </summary>
-        /// <param name="mid"></param>
-        /// <param name="left"></param>
-        /// <param name="right"></param>
-        public void InitialList(Vector3 mid, Vector3 left, Vector3 right)
-        {
-            var dLeft = Vector3.Distance(mid, left);
-            var dRight = Vector3.Distance(mid, right);
-            _leftCount = Mathf.FloorToInt(dLeft / _distance) + 1;
-            _rightCount = Mathf.FloorToInt(dRight / _distance) + 1;
-
-            CreateVertices(mid, left, right, dLeft, dRight);
-        }
-
-        /// <summary>
-        /// 对齐队列
-        /// </summary>
-        /// <param name="maxLeft"></param>
-        /// <param name="maxRight"></param>
-        public void Alignment(int maxLeft, int maxRight)
-        {
-            var leftAdd = maxLeft - _leftCount;
-            for (var i = 0; i < leftAdd; ++i)
-            {
-                VertexGroups.Insert(0, VertexGroup.GetAlignmentVertex());
-                ++_startIndex;
-            }
-
-            _endIndex = VertexGroups.Count - 1;
-            var rightAdd = maxRight - _rightCount;
-            for (var i = 0; i < rightAdd; ++i)
-            {
-                VertexGroups.Add(VertexGroup.GetAlignmentVertex());
-            }
-        }
-
         /// <summary>
         /// 设置顶点索引
         /// </summary>
         /// <param name="src"></param>
         public int SetIndices(int src)
         {
-            for (var index = StartIndex; index <= EndIndex; ++index)
+            for (var index = 0; index < VertexGroups.Count; ++index)
             {
                 this[index].VertixIndex = src;
                 ++src;
@@ -92,22 +89,18 @@ namespace ZKnight.FlowingWaterSurface.Editor
         {
             if (next != null)
             {
-                float length = EndIndex - StartIndex;
-                float lengthNext = next.EndIndex - next.StartIndex;
-                for (int index = StartIndex; index <= EndIndex; ++index)
+                for (var index = 0; index < VertexGroups.Count; ++index)
                 {
-                    var curNext = this[index];
-                    var percent = (index - StartIndex) / length;
-                    var nextVertexIndex = Mathf.CeilToInt(percent * lengthNext + next.StartIndex);
-                    var nextVertex = next[nextVertexIndex];
+                    var curPos = this[index];
+                    var nextPos = next[index];
 
-                    var tangent = (nextVertex.Vertex - curNext.Vertex).normalized;
-                    var left = (index == EndIndex) ? (curNext.Vertex - this[MidIndex].Vertex).normalized : (this[index + 1].Vertex - curNext.Vertex).normalized;
-                    var normal = Vector3.Cross(left, tangent).normalized;
+                    var tangent = (nextPos.Vertex - curPos.Vertex).normalized;
+                    var right = (index == VertexGroups.Count - 1) ? (curPos.Vertex - this[0].Vertex).normalized : (this[index + 1].Vertex - curPos.Vertex).normalized;
+                    var normal = Vector3.Cross(tangent, right).normalized;
 
-                    curNext.Tangent = tangent;
-                    curNext.Tangent.w = -1f;
-                    curNext.Normal = -normal;
+                    curPos.Tangent = tangent;
+                    curPos.Tangent.w = -1f;
+                    curPos.Normal = normal;
                 }
             }
         }
@@ -118,18 +111,14 @@ namespace ZKnight.FlowingWaterSurface.Editor
         /// <param name="src"></param>
         public void SetLastRowVertexDetial(VerticesRowGroup src)
         {
-            float length = EndIndex - StartIndex;
-            float lengthSrc = src.EndIndex - src.StartIndex;
-
-            for (int index = StartIndex; index <= EndIndex; ++index)
+            if (src == null) return;
+            for (var index = 0; index < VertexGroups.Count; ++index)
             {
-                var curNext = this[index];
-                var percent = (index - StartIndex) / length;
-                var srcVertexIndex = Mathf.CeilToInt(percent * lengthSrc + src.StartIndex);
-                var srcVertex = src[srcVertexIndex];
+                var curPos = this[index];
+                var srcPos = src[index];
 
-                curNext.Tangent = srcVertex.Tangent;
-                curNext.Normal = srcVertex.Normal;
+                curPos.Tangent = srcPos.Tangent;
+                curPos.Normal = srcPos.Normal;
             }
         }
         #endregion
@@ -144,12 +133,12 @@ namespace ZKnight.FlowingWaterSurface.Editor
         {
             var triangleList = new List<int>();
 
-            var curStart = _startIndex;
-            var curEnd = _endIndex;
+            var curStart = 0;
+            var curEnd = VertexGroups.Count - 1;
 
-            var nextStart = next._startIndex;
-            var nextEnd = next._endIndex;
-            for (var i = Mathf.Min(curStart, nextStart); i <= Mathf.Max(curEnd - 1, nextEnd - 1); ++i)
+            var nextStart = 0;
+            var nextEnd = VertexGroups.Count - 1;
+            for (var i = 0; i <= Mathf.Max(curEnd - 1, nextEnd - 1); ++i)
             {
                 var curIndex = Mathf.Clamp(i, curStart - 1, curEnd);
                 var nextIndex = Mathf.Clamp(i, nextStart - 1, nextEnd);
@@ -163,7 +152,7 @@ namespace ZKnight.FlowingWaterSurface.Editor
         {
             get
             {
-                return VertexGroups.GetRange(StartIndex, TotalCount);
+                return VertexGroups.GetRange(0, VertexGroups.Count);
             }
         }
 
@@ -202,31 +191,6 @@ namespace ZKnight.FlowingWaterSurface.Editor
             list.Add(p0.VertixIndex);
         }
 
-        private void CreateVertices(Vector3 mid, Vector3 left, Vector3 right, float dLeft, float dRight)
-        {
-            var lDire = (mid - left).normalized;
-            var rDire = (right - mid).normalized;
-            VertexGroups.Add(left);
-
-            var lSp = dLeft / _leftCount;
-            for (int i = 0; i < _leftCount - 1; ++i)
-            {
-                var length = lSp * (i + 1);
-                var pos = lDire * length + left;
-                VertexGroups.Add(pos);
-            }
-
-            VertexGroups.Add(mid);
-
-            var rSp = dRight / _rightCount;
-            for (int i = 0; i < _rightCount - 1; ++i)
-            {
-                var length = rSp * (i + 1);
-                var pos = rDire * length + mid;
-                VertexGroups.Add(pos);
-            }
-            VertexGroups.Add(right);
-        }
         #endregion
     }
 }

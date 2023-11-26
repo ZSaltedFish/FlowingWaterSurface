@@ -9,7 +9,11 @@ void SetupRiver(RiverVaryings input, inout River river)
     river.flowingDire = river.tangent.xyz;
     river.viewDire = input.viewDirWS;
     river.screenPos = input.screenPos;
+#ifdef WORLD_POS_UV
+    river.UV = frac(-river.position.xz);
+#else
     river.UV = input.UV;
+#endif
     river.flowSpeed = input.color.r;
     river.roughness = 0.04;
     river.F0 = float3(1, 1, 1);

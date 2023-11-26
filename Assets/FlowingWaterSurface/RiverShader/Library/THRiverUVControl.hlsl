@@ -9,4 +9,11 @@ float2 RotateUVDirection(float2 uv, float2 direction)
     float y = uv.x * dire.y + uv.y * dire.x;
     return float2(x, y);
 }
+
+float2 RotateUVWithTime(float2 uv, float2 direction, float time)
+{
+    float2 direUV = RotateUVDirection(uv, direction);
+    direUV += time * direction;
+    return direUV;
+}
 #endif
